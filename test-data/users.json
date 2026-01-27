@@ -1,0 +1,38 @@
+{
+  "validUsers": [
+    {
+      "id": 1,
+      "name": "Arun Benny",
+      "email": "arun.benny@test.com",
+      "username": "Admin",
+      "password": "Admin123",
+      "age": 30
+    },
+    {
+      "id": 2,
+      "name": "Bob Johnson",
+      "email": "bob.johnson@test.com",
+      "username": "User",
+      "password": "User123",
+      "age": 25
+    }
+  ],
+  "invalidUsers": [
+    {
+      "id": 3,
+      "name": "",
+      "email": "invalid-email",
+      "username": "Us",
+      "password": "pass",
+      "age": -5
+    },
+    {
+      "id": 4,
+      "name": "Charlie",
+      "email": "charlie@test.com",
+      "username": "C",
+      "password": "123",
+      "age": 150
+    }
+  ]
+}
