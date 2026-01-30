@@ -11,6 +11,7 @@ if (!process.env.BASE_URL) {
 
 export default defineConfig({
   testDir: "./tests",
+  snapshotDir: "./tests/visual-test/baselineSnapshots",
 
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -23,6 +24,7 @@ export default defineConfig({
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    viewport: { width: 1280, height: 800 },
   },
 
   expect: {
@@ -30,7 +32,7 @@ export default defineConfig({
       maxDiffPixels: 100,
     },
     toMatchSnapshot: {
-      maxDiffPixelRatio: 0.1,
+      maxDiffPixelRatio: 0.01,
     },
   },
 

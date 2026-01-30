@@ -1,13 +1,13 @@
-export interface users {
+export interface User {
   username: string;
   password: string;
 }
 
-export interface invalidUsers extends users {
+export interface InvalidUser extends User {
   error: string;
 }
 
-export interface userData {
-  valid: users[];
-  invalid: invalidUsers[];
+export interface UserData {
+  validUsers: User[];
+  invalidUsers: InvalidUser[];
 }

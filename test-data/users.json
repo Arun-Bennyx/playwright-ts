@@ -5,7 +5,7 @@
       "name": "Arun Benny",
       "email": "arun.benny@test.com",
       "username": "Admin",
-      "password": "Admin123",
+      "password": "admin123",
       "age": 30
     },
     {
@@ -22,17 +22,16 @@
       "id": 3,
       "name": "",
       "email": "invalid-email",
-      "username": "Us",
-      "password": "pass",
-      "age": -5
+      "username": "invalid User",
+      "password": "invalid Password",
+      "error": "Invalid credentials"
     },
     {
       "id": 4,
       "name": "Charlie",
       "email": "charlie@test.com",
       "username": "C",
-      "password": "123",
-      "age": 150
+      "password": "123"
     }
   ]
 }
