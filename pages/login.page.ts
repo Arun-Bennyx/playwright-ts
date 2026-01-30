@@ -5,11 +5,13 @@ export class LoginPage {
   readonly username: Locator;
   readonly password: Locator;
   readonly loginButton: Locator;
+  readonly loginError: Locator;
 
   constructor(private readonly page: Page) {
     this.username = page.locator('input[name="username"]');
     this.password = page.locator('input[name="password"]');
     this.loginButton = page.locator('button[type="submit"]');
+    this.loginError = page.getByRole("alert");
   }
 
   async navigateToLoginPage() {
@@ -25,7 +27,7 @@ export class LoginPage {
     await this.password.fill(password);
   }
 
-  private async submitLogin() {
+  async submitLogin() {
     await this.loginButton.click();
   }
 
@@ -35,10 +37,18 @@ export class LoginPage {
     await expect(this.loginButton).toBeVisible();
   }
 
-  async login(user: string, pass: string): Promise<DashboardPage> {
+  async login(user: string, pass: string) {
     await this.enterUsername(user);
     await this.enterPassword(pass);
     await this.submitLogin();
-    return new DashboardPage(this.page);
+  }
+
+  async enterLoginCredentials(usrename: string, password: string) {
+    this.enterUsername(usrename);
+    this.enterPassword(password);
+  }
+
+  async verifyErrorMessage(expectedMessage: string): Promise<void> {
+    await expect(this.loginError).toContainText(expectedMessage);
   }
 }

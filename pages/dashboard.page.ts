@@ -7,7 +7,7 @@ export class DashboardPage {
     this.dashBoardTitle = page.getByRole("heading", { name: "Dashboard" });
   }
 
-  async isLoaded(): Promise<void> {
+  async assertLoaded(): Promise<void> {
     await expect(this.dashBoardTitle).toBeVisible();
   }
 }

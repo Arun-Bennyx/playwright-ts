@@ -8,7 +8,9 @@
     "test:local": "playwright test",
     "test:dev": "ENV=dev playwright test",
     "test:qa": "ENV=qa playwright test",
-    "test:stg": "ENV=stg playwright test"
+    "test:stg": "ENV=stg playwright test",
+    "test:visual": "playwright test tests/visual-test",
+    "test:visual:update": "playwright test tests/visual-test --update-snapshots"
   },
   "keywords": [],
   "author": "",

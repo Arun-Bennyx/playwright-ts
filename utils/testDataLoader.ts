@@ -1,5 +1,4 @@
-import { error } from "console";
-import fs, { existsSync } from "fs";
+import * as fs from "fs";
 import path from "path";
 
 const cache = new Map<string, unknown>();
@@ -16,7 +15,7 @@ export function loadTestData<T>(fileName: string): T {
 
   if (env) {
     const envFilePath = path.join(dataDir, `${fileName}.${env}.json`);
-    if (existsSync(envFilePath)) {
+    if (fs.existsSync(envFilePath)) {
       const data = JSON.parse(fs.readFileSync(envFilePath, "utf-8"));
       cache.set(cacheKey, data);
       return data;
