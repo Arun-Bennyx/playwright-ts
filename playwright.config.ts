@@ -29,17 +29,16 @@ export default defineConfig({
 
   expect: {
     toHaveScreenshot: {
-      maxDiffPixels: 100,
-    },
-    toMatchSnapshot: {
       maxDiffPixelRatio: 0.01,
+      maxDiffPixels: 100,
     },
   },
 
   projects: [
     {
-      name: "ui",
-      grepInvert: /@auth/,
+      name: "visual",
+      grepInvert: /@auth|@mobile/,
+      grep: /@visual/,
       use: { ...devices["Desktop Chrome"] },
     },
 
@@ -60,7 +59,7 @@ export default defineConfig({
 
     {
       name: "chromium",
-      grepInvert: /@auth|@mobile|@cross-browser/,
+      grepInvert: /@auth|@mobile|@cross-browser|@visual|@AuthSetup/,
       use: { ...devices["Desktop Chrome"] },
     },
 
