@@ -1,4 +1,3 @@
-# CI – Fail fast on PRs, full regression on merge to master
 name: Playwright CI
 
 on:
@@ -7,21 +6,16 @@ on:
   push:
     branches: [master]
 
-# Cancel older runs on the same branch
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# Global env (injected from GitHub Secrets)
 env:
   BASE_URL: ${{ secrets.BASE_URL }}
   APP_USERNAME: ${{ secrets.APP_USERNAME }}
   APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
 
 jobs:
-  # -------------------------------
-  # 1. SMOKE TESTS (FAIL FAST)
-  # -------------------------------
   smoke:
     name: Smoke tests (Chromium) ⚡
     runs-on: ubuntu-latest
@@ -43,11 +37,8 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run smoke tests
-        run: npx playwright test -p chromium --grep @smoke
+        run: npx playwright test --project=chromium --grep "@smoke"
 
-  # -------------------------------
-  # 2. VISUAL REGRESSION (POST-MERGE)
-  # -------------------------------
   visual:
     name: Visual regression 🖼️
     needs: smoke
@@ -108,7 +99,7 @@ jobs:
         run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run cross-browser tests
-        run: npx playwright test -p ${{ matrix.browser }} --grep @cross-browser
+        run: npx playwright test -p ${{ matrix.browser }} --grep "@cross-browser"
 
       - name: Upload cross-browser report
         if: always()
