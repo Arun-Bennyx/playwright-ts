@@ -40,5 +40,5 @@ test("Login mobile resolution visual snapshot @mobile", async ({ page }) => {
   await loginPage.navigateToLoginPage();
   await loginPage.login(user.username, user.password);
   await dashboard.assertLoaded();
-  await expect(page).toHaveScreenshot("login-mobile-iphonex.png");
+  await expect(page).toHaveScreenshot("login.png");
 });
