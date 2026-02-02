@@ -99,7 +99,7 @@ jobs:
         run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run cross-browser tests
-        run: npx playwright test -p ${{ matrix.browser }} --grep "@cross-browser"
+        run: npx playwright test --project-${{ matrix.browser }} --grep "@cross-browser"
 
       - name: Upload cross-browser report
         if: always()

@@ -11,8 +11,8 @@ if (!process.env.BASE_URL) {
 
 export default defineConfig({
   testDir: "./tests",
-  snapshotDir: "./tests/visual-test/baselineSnapshots",
-
+  snapshotPathTemplate:
+    "{testDir}/visual-test/baseline/{arg}-{projectName}.png",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -75,12 +75,12 @@ export default defineConfig({
     },
 
     {
-      name: "mobile-chrome",
+      name: "Pixel 5-chrome",
       grep: /@mobile/,
       use: { ...devices["Pixel 5"] },
     },
     {
-      name: "mobile-safari",
+      name: "iPhone 12-safari",
       grep: /@mobile/,
       use: { ...devices["iPhone 12"] },
     },
