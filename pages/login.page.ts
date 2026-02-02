@@ -1,5 +1,4 @@
 import { Locator, Page, expect } from "@playwright/test";
-import { DashboardPage } from "./dashboard.page";
 
 export class LoginPage {
   readonly username: Locator;

@@ -8,17 +8,18 @@ import { UserData } from "../utils/types";
 
 const data = loadTestData<UserData>("users");
 
-test("this is a login test with a valid credentials", async ({ page }) => {
+test("this is a login test with a valid credentials @cross-browser @smoke", async ({
+  page,
+}) => {
   const loginPage = new LoginPage(page);
   const dashboard = new DashboardPage(page);
 
   await loginPage.navigateToLoginPage();
   await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
-
   await dashboard.assertLoaded();
 });
 
-test("Login With Invalid Credentials", async ({ page }) => {
+test("Login With Invalid Credentials @smoke", async ({ page }) => {
   const user = data.invalidUsers[0];
   const loginPage = new LoginPage(page);
   await loginPage.navigateToLoginPage();

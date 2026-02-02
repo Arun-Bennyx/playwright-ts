@@ -1,0 +1,118 @@
+# CI – Fail fast on PRs, full regression on merge to master
+name: Playwright CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+# Cancel older runs on the same branch
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Global env (injected from GitHub Secrets)
+env:
+  BASE_URL: ${{ secrets.BASE_URL }}
+  APP_USERNAME: ${{ secrets.APP_USERNAME }}
+  APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+
+jobs:
+  # -------------------------------
+  # 1. SMOKE TESTS (FAIL FAST)
+  # -------------------------------
+  smoke:
+    name: Smoke tests (Chromium) ⚡
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests
+        run: npx playwright test -p chromium --grep @smoke
+
+  # -------------------------------
+  # 2. VISUAL REGRESSION (POST-MERGE)
+  # -------------------------------
+  visual:
+    name: Visual regression 🖼️
+    needs: smoke
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run visual tests
+        run: npx playwright test tests/visual-test
+
+      - name: Upload visual report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-report
+          path: playwright-report
+
+  cross-browser:
+    name: Cross-browser – ${{ matrix.browser }} 🌐
+    needs: smoke
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    strategy:
+      fail-fast: true
+      matrix:
+        browser: [firefox, webkit]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run cross-browser tests
+        run: npx playwright test -p ${{ matrix.browser }} --grep @cross-browser
+
+      - name: Upload cross-browser report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-${{ matrix.browser }}
+          path: playwright-report
