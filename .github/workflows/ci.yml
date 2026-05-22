@@ -33,6 +33,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install CI fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            fontconfig \
+            fonts-dejavu-core \
+            fonts-freefont-ttf \
+            fonts-liberation \
+            fonts-noto \
+            fonts-noto-cjk \
+            fonts-noto-color-emoji
+          fc-cache -f -v
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
@@ -57,6 +70,19 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install CI fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            fontconfig \
+            fonts-dejavu-core \
+            fonts-freefont-ttf \
+            fonts-liberation \
+            fonts-noto \
+            fonts-noto-cjk \
+            fonts-noto-color-emoji
+          fc-cache -f -v
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
@@ -94,6 +120,19 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install CI fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            fontconfig \
+            fonts-dejavu-core \
+            fonts-freefont-ttf \
+            fonts-liberation \
+            fonts-noto \
+            fonts-noto-cjk \
+            fonts-noto-color-emoji
+          fc-cache -f -v
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
