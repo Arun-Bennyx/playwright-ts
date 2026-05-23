@@ -84,5 +84,12 @@ export default defineConfig({
       grep: /@mobile/,
       use: { ...devices["iPhone 12"] },
     },
+
+    {
+      name: "regression",
+      dependencies: ["setup"],
+      grepInvert: /@visual/,
+      use: { ...devices["Desktop Chrome"] },
+    },
   ],
 });
