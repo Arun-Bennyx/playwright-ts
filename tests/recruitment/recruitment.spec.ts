@@ -1,82 +1,106 @@
-// spec: specs/plan.md
-// Recruitment module tests
-
 import { test } from "@playwright/test";
+
 import { LoginPage } from "../../pages/login.page";
+import { DashboardPage } from "../../pages/dashboard.page";
 import { RecruitmentPage } from "../../pages/recruitment.page";
 
-test.describe("Recruitment Module", () => {
-  test("View Job Openings @auth", async ({ page }) => {
-    // 1. Login with admin credentials
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
+test.describe("Recruitment Tests", () => {
+  let loginPage: LoginPage;
+  let dashboardPage: DashboardPage;
+  let recruitmentPage: RecruitmentPage;
 
-    // 2. Navigate to Job Openings
-    const recruitment = new RecruitmentPage(page);
-    await recruitment.navigateToJobOpenings();
+  test.beforeEach(async ({ page }) => {
+    loginPage = new LoginPage(page);
+    dashboardPage = new DashboardPage(page);
+    recruitmentPage = new RecruitmentPage(page);
 
-    // 3. Verify job openings list displays
-    await recruitment.verifyJobOpeningsLoaded();
+    await loginPage.goto();
+    await loginPage.loginAsAdmin();
+    await dashboardPage.navigateToRecruitment();
+    await recruitmentPage.verifyPageLoaded();
   });
 
-  test("Create Job Opening @auth", async ({ page }) => {
-    // 1. Login with admin
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
-
-    // 2. Navigate to Job Openings
-    const recruitment = new RecruitmentPage(page);
-    await recruitment.navigateToJobOpenings();
-
-    // 3. Click Add Job Opening
-    await recruitment.clickAddJobOpening();
-
-    // 4. Fill job details
-    await recruitment.selectJobTitle("Software Engineer");
-    await recruitment.selectDepartment("IT");
-    await recruitment.selectLocation("New York");
-    await recruitment.enterJobDescription("Looking for experienced software engineer");
-
-    // 5. Save job opening
-    await recruitment.clickSave();
-
-    // 6. Verify success
-    await recruitment.verifyJobOpeningCreated();
+  test("Verify recruitment page loaded successfully", async () => {
+    await recruitmentPage.verifyPageLoaded();
   });
 
-  test("View Candidates @auth", async ({ page }) => {
-    // 1. Login with admin
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
-
-    // 2. Navigate to Candidates
-    const recruitment = new RecruitmentPage(page);
-    await recruitment.navigateToCandidates();
-
-    // 3. Verify candidates list displays
-    await recruitment.verifyCandidatesLoaded();
-
-    // 4. Verify candidate columns (Name, Position, Applied Date, Status)
-    await recruitment.verifyCandidateColumns();
+  test("Verify candidates tab visible", async () => {
+    await recruitmentPage.navigateToCandidates();
   });
 
-  test("Search Job Opening @auth", async ({ page }) => {
-    // 1. Login with admin
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
+  test("Verify vacancies tab visible", async () => {
+    await recruitmentPage.navigateToVacancies();
+  });
 
-    // 2. Navigate to Job Openings
-    const recruitment = new RecruitmentPage(page);
-    await recruitment.navigateToJobOpenings();
+  test("Verify add button enabled", async () => {
+    await recruitmentPage.verifyAddButtonEnabled();
+  });
 
-    // 3. Search for job opening
-    await recruitment.searchJobOpening("Engineer");
+  test("Verify search button enabled", async () => {
+    await recruitmentPage.verifySearchButtonEnabled();
+  });
 
-    // 4. Verify search results
-    await recruitment.verifySearchResults();
+  test("Verify candidates table visible", async () => {
+    await recruitmentPage.verifyCandidatesTableVisible();
+  });
+
+  test("Search existing candidate", async () => {
+    const candidateName = `Candidate${Date.now()}`;
+
+    await recruitmentPage.addCandidate({
+      firstName: candidateName,
+      lastName: "Tester",
+      email: `${candidateName}@mail.com`,
+      contactNumber: "9999999999",
+      vacancy: "Senior QA Lead",
+      keywords: "Playwright, Automation, QA",
+      notes: "Automation Candidate",
+    });
+    await recruitmentPage.searchCandidate("candidateName");
+    await recruitmentPage.verifyCandidateVisible("candidateName");
+  });
+
+  test("Search non existing candidate", async () => {
+    await recruitmentPage.searchCandidate("RandomCandidate123");
+
+    await recruitmentPage.verifyNoRecordsFound();
+  });
+
+  test("Reset candidate search", async () => {
+    const candidateName = `Candidate${Date.now()}`;
+
+    await recruitmentPage.addCandidate({
+      firstName: candidateName,
+      lastName: "Tester",
+      email: `${candidateName}@mail.com`,
+      contactNumber: "9999999999",
+      vacancy: "Senior QA Lead",
+      keywords: "Playwright, Automation, QA",
+      notes: "Automation Candidate",
+    });
+
+    await recruitmentPage.searchCandidate("candidateName");
+
+    await recruitmentPage.resetSearch();
+  });
+
+  test("Add new candidate", async () => {
+    const candidateName = `Candidate${Date.now()}`;
+
+    await recruitmentPage.addCandidate({
+      firstName: candidateName,
+      lastName: "Tester",
+      email: `${candidateName}@mail.com`,
+      contactNumber: "9999999999",
+      vacancy: "Senior QA Lead",
+      keywords: "Playwright, Automation, QA",
+      notes: "Automation Candidate",
+    });
+
+    await recruitmentPage.verifySuccessToast();
+  });
+
+  test("Open candidate details", async () => {
+    await recruitmentPage.openCandidateDetails("Linda");
   });
 });

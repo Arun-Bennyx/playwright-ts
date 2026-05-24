@@ -1,75 +1,45 @@
-// spec: specs/plan.md
-// Performance management tests
-
 import { test } from "@playwright/test";
+
 import { LoginPage } from "../../pages/login.page";
+import { DashboardPage } from "../../pages/dashboard.page";
 import { PerformancePage } from "../../pages/performance.page";
 
-test.describe("Performance Management", () => {
-  test("View Performance Reviews @auth", async ({ page }) => {
-    // 1. Login with admin/manager credentials
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
+test.describe("Performance Tests", () => {
+  let loginPage: LoginPage;
+  let dashboardPage: DashboardPage;
+  let performancePage: PerformancePage;
 
-    // 2. Navigate to Performance > Manage > Appraisals
-    const performance = new PerformancePage(page);
-    await performance.navigateToAppraisals();
+  test.beforeEach(async ({ page }) => {
+    loginPage = new LoginPage(page);
+    dashboardPage = new DashboardPage(page);
+    performancePage = new PerformancePage(page);
 
-    // 3. Verify appraisals list displays
-    await performance.verifyAppraisalsLoaded();
+    await loginPage.goto();
+
+    await loginPage.loginAsAdmin();
+
+    await dashboardPage.navigateToPerformance();
   });
 
-  test("Create Performance Review @auth", async ({ page }) => {
-    // 1. Login with admin
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
-
-    // 2. Navigate to Appraisals
-    const performance = new PerformancePage(page);
-    await performance.navigateToAppraisals();
-
-    // 3. Click Add Appraisal
-    await performance.clickAddAppraisal();
-
-    // 4. Select employee
-    await performance.selectEmployee("John Doe");
-
-    // 5. Select review period
-    await performance.selectReviewPeriod("Q1 2026");
-
-    // 6. Fill appraisal details
-    await performance.enterAppraisalRating("Excellent");
-    await performance.enterAppraisalComment("Great performance and contribution");
-
-    // 7. Save appraisal
-    await performance.clickSave();
-
-    // 8. Verify appraisal created
-    await performance.verifyAppraisalCreated();
+  test("Verify performance page loaded", async () => {
+    await performancePage.verifyPageLoaded();
   });
 
-  test("Update Appraisal Status @auth", async ({ page }) => {
-    // 1. Login with manager
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login("Manager", "manager123");
+  test("Search employee review", async () => {
+    await performancePage.searchEmployeeReview("Linda");
 
-    // 2. Navigate to Appraisals
-    const performance = new PerformancePage(page);
-    await performance.navigateToAppraisals();
+    await performancePage.verifyReviewVisible("Linda");
+  });
 
-    // 3. Click on pending appraisal
-    await performance.clickFirstAppraisal();
+  test("Navigate to configure", async () => {
+    await performancePage.navigateToConfigure();
+  });
 
-    // 4. Update status to Completed
-    await performance.updateAppraisalStatus("Completed");
+  test("Navigate to manage reviews", async () => {
+    await performancePage.navigateToManageReviews();
+  });
 
-    // 5. Save changes
-    await performance.clickSave();
-
-    // 6. Verify status updated
-    await performance.verifyStatusUpdated();
+  test("Navigate to my trackers", async () => {
+    await performancePage.navigateToMyTrackers();
   });
 });

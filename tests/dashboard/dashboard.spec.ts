@@ -1,87 +1,64 @@
-// spec: specs/plan.md
-// Dashboard functionality tests
-
 import { test } from "@playwright/test";
+
 import { LoginPage } from "../../pages/login.page";
 import { DashboardPage } from "../../pages/dashboard.page";
 
-test.describe("Dashboard Functionality", () => {
-  test("Dashboard Loads After Successful Login @auth", async ({ page }) => {
-    // 1. Login with valid admin credentials
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
+test.describe("Dashboard Tests", () => {
+  let loginPage: LoginPage;
+  let dashboardPage: DashboardPage;
 
-    // 2. Verify dashboard loads and all main sections are visible
-    const dashboard = new DashboardPage(page);
-    await dashboard.assertLoaded();
-    await dashboard.verifyMainWidgets();
-    await dashboard.verifySideMenu();
+  test.beforeEach(async ({ page }) => {
+    loginPage = new LoginPage(page);
+    dashboardPage = new DashboardPage(page);
+
+    await loginPage.goto();
+
+    await loginPage.loginAsAdmin();
   });
 
-  test("Navigate to Employee List @auth", async ({ page }) => {
-    // 1. Navigate to dashboard
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
-
-    // 2. Navigate to PIM > Employee List
-    const dashboard = new DashboardPage(page);
-    await dashboard.assertLoaded();
-    await dashboard.navigateToPIM();
-    
-    // 3. Verify Employee List page loads
-    await page.waitForLoadState("domcontentloaded");
-    const employeeHeader = page.getByText("Employee List").first();
-    await employeeHeader.isVisible();
+  test("Verify dashboard loaded successfully", async () => {
+    await dashboardPage.verifyDashboardLoaded();
   });
 
-  test("Navigate to Leave Module @auth", async ({ page }) => {
-    // 1. Login and view dashboard
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
-
-    // 2. Navigate to Leave
-    const dashboard = new DashboardPage(page);
-    await dashboard.assertLoaded();
-    await dashboard.navigateToLeave();
-
-    // 3. Verify Leave page loads
-    await page.waitForLoadState("domcontentloaded");
-    const leaveText = page.getByText("Leave");
-    await leaveText.first().isVisible();
+  test("Verify dashboard widgets visible", async () => {
+    await dashboardPage.verifyDashboardWidgetsVisible();
   });
 
-  test("Navigate to Time Module @auth", async ({ page }) => {
-    // 1. Login and view dashboard
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
-
-    // 2. Navigate to Time
-    const dashboard = new DashboardPage(page);
-    await dashboard.assertLoaded();
-    await dashboard.navigateToTime();
-
-    // 3. Verify Time page loads
-    await page.waitForLoadState("domcontentloaded");
-    const timeText = page.getByText("Time");
-    await timeText.first().isVisible();
+  test("Verify quick launch buttons visible", async () => {
+    await dashboardPage.verifyQuickLaunchButtonsVisible();
   });
 
-  test("Dashboard Search Functionality @auth", async ({ page }) => {
-    // 1. Login with valid credentials
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
+  test("Verify side menus visible", async () => {
+    await dashboardPage.verifyAllMenusVisible();
+  });
 
-    // 2. Use dashboard search
-    const dashboard = new DashboardPage(page);
-    await dashboard.assertLoaded();
-    await dashboard.searchEmployee("Peter");
+  test("Verify navigation to Admin", async () => {
+    await dashboardPage.navigateToAdmin();
+  });
 
-    // 3. Verify search results appear
-    await page.waitForLoadState("domcontentloaded");
+  test("Verify navigation to PIM", async () => {
+    await dashboardPage.navigateToPIM();
+  });
+
+  test("Verify navigation to Leave", async () => {
+    await dashboardPage.navigateToLeave();
+  });
+
+  test("Verify navigation to Time", async () => {
+    await dashboardPage.navigateToTime();
+  });
+
+  test("Verify navigation to Recruitment", async () => {
+    await dashboardPage.navigateToRecruitment();
+  });
+
+  test("Verify navigation to Performance", async () => {
+    await dashboardPage.navigateToPerformance();
+  });
+
+  test("Verify logout works", async () => {
+    await dashboardPage.logout();
+
+    await loginPage.verifyLoginPageLoaded();
   });
 });

@@ -1,34 +1,69 @@
-// all the test in the file uses the storage state saved by the authSetup.spec.ts for better performance and faster execution
-
 import { test } from "@playwright/test";
+
 import { LoginPage } from "../pages/login.page";
-import { loadTestData } from "../utils/testDataLoader";
 import { DashboardPage } from "../pages/dashboard.page";
-import { UserData } from "../utils/types";
 
-const data = loadTestData<UserData>("users");
+test.describe("Login Tests", () => {
+  let loginPage: LoginPage;
+  let dashboardPage: DashboardPage;
 
-test(
-  "this is a login test with a valid credentials",
-  { tag: ["@cross-browser", "@smoke"] },
-  async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    const dashboard = new DashboardPage(page);
+  test.beforeEach(async ({ page }) => {
+    loginPage = new LoginPage(page);
+    dashboardPage = new DashboardPage(page);
 
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(process.env.APP_USERNAME!, process.env.APP_PASSWORD!);
-    await dashboard.assertLoaded();
-  },
-);
+    await loginPage.goto();
+  });
 
-test(
-  "Login With Invalid Credentials",
-  { tag: ["@smoke"] },
-  async ({ page }) => {
-    const user = data.invalidUsers[0];
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(user.username, user.password);
-    await loginPage.verifyErrorMessage(user.error);
-  },
-);
+  test("Verify login page UI", async () => {
+    await loginPage.verifyLoginPageLoaded();
+    await loginPage.verifyLoginFormVisible();
+    await loginPage.verifyForgotPasswordVisible();
+    await loginPage.verifyCredentialsSectionVisible();
+    await loginPage.verifyPasswordMasked();
+    await loginPage.verifyLoginButtonEnabled();
+  });
+
+  test("Login with valid credentials", async () => {
+    await loginPage.loginAsAdmin();
+
+    await dashboardPage.verifyDashboardLoaded();
+  });
+
+  test("Login with invalid credentials", async () => {
+    await loginPage.login("wrongUser", "wrongPassword");
+
+    await loginPage.verifyInvalidCredentialsError();
+  });
+
+  test("Verify required validation messages", async () => {
+    await loginPage.clickLoginButton();
+
+    await loginPage.verifyRequiredErrorsVisible();
+  });
+
+  test("Verify username input works", async () => {
+    await loginPage.enterUsername("Admin");
+
+    await loginPage.verifyUsernameValue("Admin");
+  });
+
+  test("Verify password input works", async () => {
+    await loginPage.enterPassword("admin123");
+
+    await loginPage.verifyPasswordValue("admin123");
+  });
+
+  test("Verify clear input fields", async () => {
+    await loginPage.enterUsername("Admin");
+
+    await loginPage.enterPassword("admin123");
+
+    await loginPage.clearUsername();
+
+    await loginPage.clearPassword();
+
+    await loginPage.verifyUsernameEmpty();
+
+    await loginPage.verifyPasswordEmpty();
+  });
+});

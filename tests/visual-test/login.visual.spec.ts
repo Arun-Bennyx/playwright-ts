@@ -13,9 +13,9 @@ test.describe("@visual Login page – desktop", () => {
     const loginPage = new LoginPage(page);
     const dashboard = new DashboardPage(page);
 
-    await loginPage.navigateToLoginPage();
+    await loginPage.goto();
     await loginPage.login(user.username, user.password);
-    await dashboard.assertLoaded();
+    await dashboard.verifyDashboardLoaded();
     await expect(page).toHaveScreenshot("login-page.png");
   });
 
@@ -23,7 +23,7 @@ test.describe("@visual Login page – desktop", () => {
     const user = users.invalidUsers[0];
     const loginPage = new LoginPage(page);
 
-    await loginPage.navigateToLoginPage();
+    await loginPage.goto();
     await loginPage.login(user.username, user.password);
     await loginPage.verifyErrorMessage(user.error);
 
@@ -37,8 +37,8 @@ test("Login mobile resolution visual snapshot @mobile", async ({ page }) => {
   const loginPage = new LoginPage(page);
   const dashboard = new DashboardPage(page);
 
-  await loginPage.navigateToLoginPage();
+  await loginPage.goto();
   await loginPage.login(user.username, user.password);
-  await dashboard.assertLoaded();
+  await dashboard.verifyDashboardLoaded();
   await expect(page).toHaveScreenshot("login.png");
 });
