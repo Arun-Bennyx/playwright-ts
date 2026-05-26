@@ -22,7 +22,7 @@ test.describe("Leave Tests", () => {
     await dashboardPage.navigateToLeave();
   });
 
-  test("Verify leave page loaded", async () => {
+  test("Verify leave page loaded", { tag: ["@smoke"] }, async () => {
     await leavePage.verifyPageLoaded();
   });
 

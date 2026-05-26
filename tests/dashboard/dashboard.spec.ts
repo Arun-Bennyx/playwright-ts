@@ -18,9 +18,13 @@ test.describe("Dashboard Tests", () => {
     await page.goto("/web/index.php/dashboard/index");
   });
 
-  test("Verify dashboard loaded successfully", async () => {
-    await dashboardPage.verifyDashboardLoaded();
-  });
+  test(
+    "Verify dashboard loaded successfully",
+    { tag: ["@smoke"] },
+    async () => {
+      await dashboardPage.verifyDashboardLoaded();
+    },
+  );
 
   test("Verify dashboard widgets visible", async () => {
     await dashboardPage.verifyDashboardWidgetsVisible();

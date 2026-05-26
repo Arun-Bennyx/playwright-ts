@@ -14,7 +14,7 @@ test.describe("Login Tests", () => {
     await loginPage.goto();
   });
 
-  test("Verify login page UI", async () => {
+  test("Verify login page UI", { tag: ["@smoke"] }, async () => {
     await loginPage.verifyLoginPageLoaded();
     await loginPage.verifyLoginFormVisible();
     await loginPage.verifyForgotPasswordVisible();
@@ -41,7 +41,7 @@ test.describe("Login Tests", () => {
     await loginPage.verifyRequiredErrorsVisible();
   });
 
-  test("Verify username input works", async () => {
+  test("Verify username input works", { tag: ["@smoke"] }, async () => {
     await loginPage.enterUsername("Admin");
 
     await loginPage.verifyUsernameValue("Admin");
@@ -53,17 +53,13 @@ test.describe("Login Tests", () => {
     await loginPage.verifyPasswordValue("admin123");
   });
 
-  test("Verify clear input fields", async () => {
+  test("Verify clear input fields", { tag: ["@smoke"] }, async () => {
     await loginPage.enterUsername("Admin");
 
     await loginPage.enterPassword("admin123");
-
     await loginPage.clearUsername();
-
     await loginPage.clearPassword();
-
     await loginPage.verifyUsernameEmpty();
-
     await loginPage.verifyPasswordEmpty();
   });
 });
