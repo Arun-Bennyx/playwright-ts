@@ -20,9 +20,13 @@ test.describe("Recruitment Tests", () => {
     await recruitmentPage.verifyPageLoaded();
   });
 
-  test("Verify recruitment page loaded successfully", async () => {
-    await recruitmentPage.verifyPageLoaded();
-  });
+  test(
+    "Verify recruitment page loaded successfully",
+    { tag: ["@smoke"] },
+    async () => {
+      await recruitmentPage.verifyPageLoaded();
+    },
+  );
 
   test("Verify vacancies tab visible", async () => {
     await recruitmentPage.navigateToCandidates();
