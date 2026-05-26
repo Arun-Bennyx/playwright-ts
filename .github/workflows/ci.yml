@@ -50,7 +50,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run smoke tests
-        run: npx playwright test --project=chromium --grep "@smoke"
+        run: npx playwright test --project=regression --grep "@smoke"
 
   visual:
     name: Visual regression 🖼️
