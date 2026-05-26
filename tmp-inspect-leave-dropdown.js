@@ -1,0 +1,21 @@
+const { chromium } = require('@playwright/test');
+const dotenv = require('dotenv');
+dotenv.config();
+(async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  await page.goto(process.env.BASE_URL);
+  await page.fill('input[name="username"]', 'Admin');
+  await page.fill('input[name="password"]', 'admin123');
+  await Promise.all([page.waitForLoadState('networkidle'), page.click('button:has-text("Login")')]);
+  await Promise.all([page.waitForLoadState('networkidle'), page.click('a:has-text("Leave")')]);
+  console.log('URL:', page.url());
+  await page.waitForSelector('h6:has-text("Leave")');
+  const headingCount = await page.locator('h6:has-text("Leave")').count();
+  console.log('leave h6 count:', headingCount);
+  await page.click('.oxd-select-text');
+  await page.waitForTimeout(1000);
+  const options = await page.$$eval('div[role="option"], .oxd-select-dropdown *', els => els.map(el => ({tag: el.tagName, role: el.getAttribute('role'), text: el.innerText.trim(), class: el.className})).slice(0, 50));
+  console.log(JSON.stringify(options, null, 2));
+  await browser.close();
+})();

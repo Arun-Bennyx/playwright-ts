@@ -1,84 +1,75 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 export class PerformancePage {
   readonly page: Page;
-  readonly appraisalsHeading: Locator;
-  readonly addAppraisalButton: Locator;
-  readonly employeeField: Locator;
-  readonly reviewPeriodField: Locator;
-  readonly ratingField: Locator;
-  readonly commentField: Locator;
-  readonly saveButton: Locator;
-  readonly appraisalsTable: Locator;
-  readonly statusField: Locator;
-  readonly firstAppraisalRow: Locator;
+
+  readonly performanceHeading: Locator;
+  readonly configureMenu: Locator;
+  readonly manageReviewsMenu: Locator;
+  readonly myTrackersMenu: Locator;
+  readonly employeeReviewsRows: Locator;
+  readonly searchButton: Locator;
+  readonly resetButton: Locator;
+  readonly employeeNameInput: Locator;
+  readonly toastMessage: Locator;
+  readonly loadingSpinner: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.appraisalsHeading = page.getByText("Appraisals");
-    this.addAppraisalButton = page.getByRole("button", { name: /add/i });
-    this.employeeField = page.locator('select[name*="employee"]');
-    this.reviewPeriodField = page.locator('select[name*="period"]');
-    this.ratingField = page.locator('select[name*="rating"]');
-    this.commentField = page.locator('textarea[name*="comment"]');
-    this.saveButton = page.getByRole("button", { name: /save/i });
-    this.appraisalsTable = page.locator("table");
-    this.statusField = page.locator('select[name*="status"]');
-    this.firstAppraisalRow = page.locator("table tbody tr").first();
+
+    this.performanceHeading = page.getByRole("heading", {
+      name: "Performance",
+    });
+    this.configureMenu = page.getByRole("link", { name: "Configure" });
+    this.manageReviewsMenu = page.getByRole("link", { name: "anage reviews" });
+    this.myTrackersMenu = page.getByRole("link", { name: "My trackers" });
+    this.employeeReviewsRows = page.locator(".oxd-table-body .oxd-table-row");
+    this.searchButton = page.getByRole("button", { name: "Search" });
+    this.resetButton = page.getByRole("button", { name: "Reset" });
+    this.employeeNameInput = page.getByPlaceholder("Type for hints...");
+    this.toastMessage = page.locator(".oxd-toast");
+    this.loadingSpinner = page.locator(".oxd-loading-spinner");
   }
 
-  async navigateToAppraisals(): Promise<void> {
-    const performanceMenu = this.page.getByText("Performance");
-    await performanceMenu.click();
-    const appraisals = this.page.getByText("Appraisals");
-    await appraisals.click();
-    await this.page.waitForLoadState("domcontentloaded");
+  async verifyPageLoaded(): Promise<void> {
+    await expect(this.page).toHaveURL(/performance/);
+
+    await expect(this.performanceHeading).toBeVisible();
   }
 
-  async verifyAppraisalsLoaded(): Promise<void> {
-    await expect(this.appraisalsTable).toBeVisible();
+  async searchEmployeeReview(employeeName: string): Promise<void> {
+    await this.employeeNameInput.fill(employeeName);
+
+    await this.searchButton.click();
   }
 
-  async clickAddAppraisal(): Promise<void> {
-    await this.addAppraisalButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
+  getReviewRow(employeeName: string): Locator {
+    return this.employeeReviewsRows.filter({
+      hasText: employeeName,
+    });
   }
 
-  async selectEmployee(name: string): Promise<void> {
-    await this.employeeField.selectOption(name);
+  async verifyReviewVisible(employeeName: string): Promise<void> {
+    await expect(this.getReviewRow(employeeName)).toBeVisible();
   }
 
-  async selectReviewPeriod(period: string): Promise<void> {
-    await this.reviewPeriodField.selectOption(period);
+  async navigateToConfigure(): Promise<void> {
+    await this.configureMenu.click();
   }
 
-  async enterAppraisalRating(rating: string): Promise<void> {
-    await this.ratingField.selectOption(rating);
+  async navigateToManageReviews(): Promise<void> {
+    await this.manageReviewsMenu.click();
   }
 
-  async enterAppraisalComment(comment: string): Promise<void> {
-    await this.commentField.fill(comment);
+  async navigateToMyTrackers(): Promise<void> {
+    await this.myTrackersMenu.click();
   }
 
-  async clickSave(): Promise<void> {
-    await this.saveButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
+  async verifySuccessToast(): Promise<void> {
+    await expect(this.toastMessage).toContainText(/success/i);
   }
 
-  async verifyAppraisalCreated(): Promise<void> {
-    await expect(this.page.getByText("Successfully Saved")).toBeVisible();
-  }
-
-  async clickFirstAppraisal(): Promise<void> {
-    await this.firstAppraisalRow.click();
-    await this.page.waitForLoadState("domcontentloaded");
-  }
-
-  async updateAppraisalStatus(status: string): Promise<void> {
-    await this.statusField.selectOption(status);
-  }
-
-  async verifyStatusUpdated(): Promise<void> {
-    await expect(this.page.getByText("Successfully Saved")).toBeVisible();
+  async waitForPageStable(): Promise<void> {
+    await expect(this.loadingSpinner).not.toBeVisible();
   }
 }

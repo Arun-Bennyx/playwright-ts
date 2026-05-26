@@ -1,100 +1,168 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 export class AdminPage {
   readonly page: Page;
+
   readonly adminHeading: Locator;
-  readonly userManagementLink: Locator;
-  readonly usernameField: Locator;
-  readonly userRoleField: Locator;
-  readonly passwordField: Locator;
+  readonly addButton: Locator;
   readonly saveButton: Locator;
-  readonly addUserButton: Locator;
-  readonly successMessage: Locator;
-  readonly usersTable: Locator;
-  readonly userList: Locator;
+  readonly searchButton: Locator;
+  readonly resetButton: Locator;
+  readonly usernameInput: Locator;
+  readonly employeeNameInput: Locator;
+  readonly passwordInput: Locator;
+  readonly confirmPasswordInput: Locator;
+  readonly userRoleDropdown: Locator;
+  readonly statusDropdown: Locator;
+  readonly userRows: Locator;
+  readonly deleteConfirmButton: Locator;
+  readonly toastMessage: Locator;
+  readonly loadingSpinner: Locator;
+  readonly userManagementDropdown: Locator;
+  readonly usersOption: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.adminHeading = page.getByText("Admin").first();
-    this.userManagementLink = page.getByText("User Management");
-    this.usernameField = page.locator('input[name*="username"]');
-    this.userRoleField = page.locator('select[name*="role"]');
-    this.passwordField = page.locator('input[name*="password"]');
-    this.saveButton = page.getByRole("button", { name: /save/i });
-    this.addUserButton = page.getByRole("button", { name: /add/i });
-    this.successMessage = page.getByText("Successfully Saved");
-    this.usersTable = page.locator("table");
-    this.userList = page.getByText("User Management");
+
+    this.adminHeading = page
+      .locator("h6.oxd-topbar-header-breadcrumb-module")
+      .filter({ hasText: "Admin" });
+    this.addButton = page.getByRole("button", { name: "Add" });
+    this.saveButton = page.getByRole("button", { name: "Save" });
+    this.searchButton = page.getByRole("button", { name: "Search" });
+    this.resetButton = page.getByRole("button", { name: "Reset" });
+    this.usernameInput = page
+      .locator("input.oxd-input.oxd-input--active")
+      .nth(1);
+    this.employeeNameInput = page.getByPlaceholder(/type for hints/i);
+    this.passwordInput = page.locator('input[type="password"]').first();
+    this.confirmPasswordInput = page.locator('input[type="password"]').nth(1);
+    this.userRoleDropdown = page.locator(".oxd-select-text").first();
+    this.statusDropdown = page.locator(".oxd-select-text").nth(1);
+    this.userRows = page.locator(".oxd-table-body .oxd-table-row");
+    this.deleteConfirmButton = page.getByRole("button", {
+      name: "Yes, delete",
+    });
+
+    this.toastMessage = page.locator(".oxd-toast");
+    this.loadingSpinner = page.locator(".oxd-loading-spinner");
+    this.userManagementDropdown = this.page
+      .locator(".oxd-topbar-body-nav-tab")
+      .filter({ hasText: "User Management" });
+    this.usersOption = this.page.getByRole("menuitem", {
+      name: "Users",
+    });
   }
 
-  async navigateToAdmin(): Promise<void> {
-    const adminMenu = this.page.getByText("Admin").first();
-    await adminMenu.click();
-    await this.page.waitForLoadState("domcontentloaded");
-  }
+  async verifyPageLoaded(): Promise<void> {
+    await expect(this.page).toHaveURL(/admin/);
 
-  async verifyAdminPanelLoaded(): Promise<void> {
     await expect(this.adminHeading).toBeVisible();
   }
 
-  async navigateToUserManagement(): Promise<void> {
-    const adminMenu = this.page.getByText("Admin").first();
-    await adminMenu.click();
-    await this.userManagementLink.click();
-    await this.page.waitForLoadState("domcontentloaded");
+  async clickAddButton(): Promise<void> {
+    await this.addButton.click();
   }
 
-  async verifyUserListDisplayed(): Promise<void> {
-    await expect(this.usersTable).toBeVisible();
+  async selectDropdownOption(dropdown: Locator, option: string): Promise<void> {
+    await dropdown.click();
+
+    await this.page
+      .getByRole("option", {
+        name: new RegExp(option, "i"),
+      })
+      .click();
   }
 
-  async clickAddUser(): Promise<void> {
-    await this.addUserButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
-  }
+  async addUser(data: {
+    employeeName: string;
+    username: string;
+    password: string;
+    role?: string;
+    status?: string;
+  }): Promise<void> {
+    await this.clickAddButton();
 
-  async fillUsername(username: string): Promise<void> {
-    await this.usernameField.fill(username);
-  }
+    if (data.role) {
+      await this.selectDropdownOption(this.userRoleDropdown, data.role);
+    }
 
-  async selectUserRole(role: string): Promise<void> {
-    await this.userRoleField.selectOption(role);
-  }
+    await this.employeeNameInput.fill(data.employeeName);
 
-  async fillUserPassword(password: string): Promise<void> {
-    await this.passwordField.fill(password);
-  }
+    await this.page.keyboard.press("ArrowDown");
 
-  async clickSave(): Promise<void> {
+    await this.page.keyboard.press("Enter");
+
+    await this.usernameInput.fill(data.username);
+
+    await this.passwordInput.fill(data.password);
+
+    await this.confirmPasswordInput.fill(data.password);
+
+    if (data.status) {
+      await this.selectDropdownOption(this.statusDropdown, data.status);
+    }
+
     await this.saveButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
   }
 
-  async verifySuccessMessage(): Promise<void> {
-    await expect(this.successMessage).toBeVisible();
+  async searchUser(username: string): Promise<void> {
+    await this.usernameInput.fill(username);
+    await this.searchButton.click();
   }
 
-  async navigateToRolesPermissions(): Promise<void> {
-    const adminMenu = this.page.getByText("Admin").first();
-    await adminMenu.click();
-    const userRoles = this.page.getByText(/User Roles|Positions/);
-    await userRoles.click();
-    await this.page.waitForLoadState("domcontentloaded");
+  async resetSearch(): Promise<void> {
+    await this.resetButton.click();
   }
 
-  async verifyRolesDisplayed(): Promise<void> {
-    await this.page.waitForLoadState("domcontentloaded");
+  getUserRow(username: string): Locator {
+    return this.userRows.filter({
+      hasText: username,
+    });
   }
 
-  async navigateToCompanyInfo(): Promise<void> {
-    const adminMenu = this.page.getByText("Admin").first();
-    await adminMenu.click();
-    const companyInfo = this.page.getByText("Company Information");
-    await companyInfo.click();
-    await this.page.waitForLoadState("domcontentloaded");
+  async verifyUserVisible(username: string): Promise<void> {
+    await expect(this.getUserRow(username)).toBeVisible();
   }
 
-  async verifyCompanyInfoDisplayed(): Promise<void> {
-    await this.page.waitForLoadState("domcontentloaded");
+  async verifyUserNotVisible(username: string): Promise<void> {
+    await expect(this.getUserRow(username)).not.toBeVisible();
+  }
+
+  async deleteUser(username: string): Promise<void> {
+    const row = this.getUserRow(username);
+
+    await row.getByRole("button").last().click();
+
+    await this.deleteConfirmButton.click();
+  }
+
+  async verifyToastMessage(message: string): Promise<void> {
+    await expect(this.toastMessage).toContainText(message);
+  }
+
+  async verifySuccessToast(): Promise<void> {
+    await expect(this.toastMessage).toContainText(/success/i);
+  }
+
+  async waitForPageStable(): Promise<void> {
+    await expect(this.loadingSpinner).not.toBeVisible();
+  }
+
+  async verifyAdminTableVisible(): Promise<void> {
+    await expect(this.userRows.first()).toBeVisible();
+  }
+
+  async verifySearchButtonEnabled(): Promise<void> {
+    await expect(this.searchButton).toBeEnabled();
+  }
+
+  async verifyAddButtonEnabled(): Promise<void> {
+    await expect(this.addButton).toBeEnabled();
+  }
+
+  async openUsersPage() {
+    await this.userManagementDropdown.click();
+    await this.usersOption.click();
   }
 }

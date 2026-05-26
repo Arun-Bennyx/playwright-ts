@@ -1,136 +1,103 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 export class LeavePage {
   readonly page: Page;
-  readonly leaveTypeField: Locator;
-  readonly fromDateField: Locator;
-  readonly toDateField: Locator;
-  readonly reasonField: Locator;
-  readonly submitButton: Locator;
-  readonly approveButton: Locator;
-  readonly rejectButton: Locator;
-  readonly cancelButton: Locator;
-  readonly successMessage: Locator;
-  readonly leaveBalanceSection: Locator;
-  readonly firstRequestRow: Locator;
+
+  readonly leaveHeading: Locator;
+  readonly applyLeaveMenu: Locator;
+  readonly myLeaveMenu: Locator;
+  readonly leaveListMenu: Locator;
+  readonly assignLeaveMenu: Locator;
+  readonly leaveTypeDropdown: Locator;
+  readonly fromDateInput: Locator;
+  readonly toDateInput: Locator;
+  readonly commentInput: Locator;
+  readonly applyButton: Locator;
+  readonly searchButton: Locator;
+  readonly resetButton: Locator;
+  readonly leaveRows: Locator;
+  readonly toastMessage: Locator;
+  readonly loadingSpinner: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.leaveTypeField = page.locator('select[name*="leaveType"]');
-    this.fromDateField = page.locator('input[name*="fromDate"]');
-    this.toDateField = page.locator('input[name*="toDate"]');
-    this.reasonField = page.locator('textarea[name*="reason"]');
-    this.submitButton = page.getByRole("button", { name: /submit/i });
-    this.approveButton = page.getByRole("button", { name: /approve/i });
-    this.rejectButton = page.getByRole("button", { name: /reject/i });
-    this.cancelButton = page.getByRole("button", { name: /cancel/i });
-    this.successMessage = page.getByText(
-      /submitted|approved|rejected|cancelled/i,
-    );
-    this.leaveBalanceSection = page.getByText("Leave Balance");
-    this.firstRequestRow = page.locator("table tbody tr").first();
+
+    this.leaveHeading = page.locator('h6:has-text("Leave")');
+    this.applyLeaveMenu = page.getByRole("link", { name: "Apply" });
+    this.myLeaveMenu = page.getByRole("link", { name: "My leave" });
+    this.leaveListMenu = page.getByRole("link", { name: "Leave list" });
+    this.assignLeaveMenu = page.getByRole("link", { name: "Assign leave" });
+    this.leaveTypeDropdown = page.locator(".oxd-select-text").first();
+    this.fromDateInput = page
+      .locator(".oxd-input-group")
+      .filter({ hasText: "From Date" })
+      .locator("input");
+
+    this.toDateInput = page
+      .locator(".oxd-input-group")
+      .filter({ hasText: "To Date" })
+      .locator("input");
+    this.commentInput = page.locator("textarea");
+    this.applyButton = page.getByRole("button", { name: "Apply" });
+    this.searchButton = page.getByRole("button", { name: "Search" });
+    this.resetButton = page.getByRole("button", { name: "Reset" });
+    this.leaveRows = page.locator(".oxd-table-body .oxd-table-row");
+    this.toastMessage = page.locator(".oxd-toast");
+    this.loadingSpinner = page.locator(".oxd-loading-spinner");
   }
 
-  async navigateToApplyLeave(): Promise<void> {
-    const leaveMenu = this.page.getByText("Leave");
-    await leaveMenu.click();
-    const applyLeave = this.page.getByText("Apply Leave");
-    await applyLeave.click();
-    await this.page.waitForLoadState("domcontentloaded");
+  async verifyPageLoaded(): Promise<void> {
+    await expect(this.page).toHaveURL(/leave/);
+
+    await expect(this.leaveHeading).toBeVisible();
   }
 
-  async selectLeaveType(type: string): Promise<void> {
-    await this.leaveTypeField.selectOption(type);
+  async selectLeaveType(leaveType: string): Promise<void> {
+    await this.leaveTypeDropdown.click();
+
+    await this.page
+      .getByRole("option", {
+        name: new RegExp(leaveType, "i"),
+      })
+      .click();
   }
 
-  async selectFromDate(date: string): Promise<void> {
-    await this.fromDateField.fill(date);
+  async applyLeave(data: {
+    leaveType: string;
+    fromDate: string;
+    toDate: string;
+    comment?: string;
+  }): Promise<void> {
+    await this.selectLeaveType(data.leaveType);
+    await this.fromDateInput.fill(data.fromDate);
+    await this.toDateInput.clear();
+    await this.toDateInput.fill(data.toDate);
+    if (data.comment) {
+      await this.commentInput.fill(data.comment);
+    }
+    await this.page.waitForTimeout(30000);
+    await this.applyButton.click();
   }
 
-  async selectToDate(date: string): Promise<void> {
-    await this.toDateField.fill(date);
+  getLeaveRow(text: string): Locator {
+    return this.leaveRows.filter({
+      hasText: text,
+    });
   }
 
-  async enterLeaveReason(reason: string): Promise<void> {
-    await this.reasonField.fill(reason);
+  async verifyLeaveVisible(text: string): Promise<void> {
+    await expect(this.getLeaveRow(text)).toBeVisible();
   }
 
-  async submitLeaveRequest(): Promise<void> {
-    await this.submitButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
+  async verifySuccessToast(): Promise<void> {
+    await expect(this.toastMessage).toContainText("Success");
   }
 
-  async verifyLeaveSubmitted(): Promise<void> {
-    await expect(this.successMessage).toBeVisible();
+  async waitForPageStable(): Promise<void> {
+    await expect(this.loadingSpinner).not.toBeVisible();
   }
 
-  async navigateToLeaveBalance(): Promise<void> {
-    const leaveMenu = this.page.getByText("Leave");
-    await leaveMenu.click();
-    const leaveBalance = this.page.getByText("My Leave");
-    await leaveBalance.click();
-    await this.page.waitForLoadState("domcontentloaded");
-  }
-
-  async verifyLeaveBalanceDisplayed(): Promise<void> {
-    await expect(this.leaveBalanceSection).toBeVisible();
-  }
-
-  async navigateToLeaveRequests(): Promise<void> {
-    const leaveMenu = this.page.getByText("Leave");
-    await leaveMenu.click();
-    const myRequests = this.page.getByText("My Leave Requests");
-    await myRequests.click();
-    await this.page.waitForLoadState("domcontentloaded");
-  }
-
-  async clickFirstPendingRequest(): Promise<void> {
-    await this.firstRequestRow.click();
-    await this.page.waitForLoadState("domcontentloaded");
-  }
-
-  async approveLeaveRequest(): Promise<void> {
-    await this.approveButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
-  }
-
-  async verifyLeaveApproved(): Promise<void> {
-    await expect(this.page.getByText("Approved")).toBeVisible();
-  }
-
-  async rejectLeaveRequest(): Promise<void> {
-    await this.rejectButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
-  }
-
-  async enterRejectionReason(reason: string): Promise<void> {
-    const reasonTextarea = this.page.locator('textarea[name*="comment"]');
-    await reasonTextarea.fill(reason);
-  }
-
-  async verifyLeaveRejected(): Promise<void> {
-    await expect(this.page.getByText("Rejected")).toBeVisible();
-  }
-
-  async navigateToMyLeaveRequests(): Promise<void> {
-    const leaveMenu = this.page.getByText("Leave");
-    await leaveMenu.click();
-    const myRequests = this.page.getByText("My Leave Requests");
-    await myRequests.click();
-    await this.page.waitForLoadState("domcontentloaded");
-  }
-
-  async clickFirstRequest(): Promise<void> {
-    await this.firstRequestRow.click();
-    await this.page.waitForLoadState("domcontentloaded");
-  }
-
-  async cancelLeaveRequest(): Promise<void> {
-    await this.cancelButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
-  }
-
-  async verifyLeaveCancelled(): Promise<void> {
-    await expect(this.page.getByText("Cancelled")).toBeVisible();
+  async openApplyLeaveTab(): Promise<void> {
+    await this.applyLeaveMenu.click();
   }
 }
