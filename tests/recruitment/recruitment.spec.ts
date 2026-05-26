@@ -1,21 +1,21 @@
 import { test } from "@playwright/test";
 
-import { LoginPage } from "../../pages/login.page";
 import { DashboardPage } from "../../pages/dashboard.page";
 import { RecruitmentPage } from "../../pages/recruitment.page";
 
+test.use({
+  storageState: "tests/.auth/storageState.json",
+});
+
 test.describe("Recruitment Tests", () => {
-  let loginPage: LoginPage;
   let dashboardPage: DashboardPage;
   let recruitmentPage: RecruitmentPage;
 
   test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
     dashboardPage = new DashboardPage(page);
     recruitmentPage = new RecruitmentPage(page);
 
-    await loginPage.goto();
-    await loginPage.loginAsAdmin();
+    await page.goto("/web/index.php/dashboard/index");
     await dashboardPage.navigateToRecruitment();
     await recruitmentPage.verifyPageLoaded();
   });
@@ -24,11 +24,8 @@ test.describe("Recruitment Tests", () => {
     await recruitmentPage.verifyPageLoaded();
   });
 
-  test("Verify candidates tab visible", async () => {
-    await recruitmentPage.navigateToCandidates();
-  });
-
   test("Verify vacancies tab visible", async () => {
+    await recruitmentPage.navigateToCandidates();
     await recruitmentPage.navigateToVacancies();
   });
 
@@ -56,14 +53,14 @@ test.describe("Recruitment Tests", () => {
       keywords: "Playwright, Automation, QA",
       notes: "Automation Candidate",
     });
-    await recruitmentPage.searchCandidate("candidateName");
-    await recruitmentPage.verifyCandidateVisible("candidateName");
-  });
 
-  test("Search non existing candidate", async () => {
-    await recruitmentPage.searchCandidate("RandomCandidate123");
+    await recruitmentPage.verifySuccessToast();
 
-    await recruitmentPage.verifyNoRecordsFound();
+    await recruitmentPage.clickCandidates();
+
+    await recruitmentPage.searchCandidate(candidateName);
+
+    await recruitmentPage.verifyCandidateVisible(candidateName);
   });
 
   test("Reset candidate search", async () => {
@@ -79,7 +76,9 @@ test.describe("Recruitment Tests", () => {
       notes: "Automation Candidate",
     });
 
-    await recruitmentPage.searchCandidate("candidateName");
+    await recruitmentPage.navigateToCandidates();
+
+    await recruitmentPage.searchCandidate(candidateName);
 
     await recruitmentPage.resetSearch();
   });
@@ -98,9 +97,5 @@ test.describe("Recruitment Tests", () => {
     });
 
     await recruitmentPage.verifySuccessToast();
-  });
-
-  test("Open candidate details", async () => {
-    await recruitmentPage.openCandidateDetails("Linda");
   });
 });

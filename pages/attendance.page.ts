@@ -4,21 +4,18 @@ export class AttendancePage {
   readonly page: Page;
 
   readonly attendanceHeading: Locator;
-
   readonly punchInButton: Locator;
-
   readonly punchOutButton: Locator;
-
   readonly attendanceToast: Locator;
-
   readonly attendanceRecords: Locator;
-
   readonly loadingSpinner: Locator;
 
   constructor(page: Page) {
     this.page = page;
 
-    this.attendanceHeading = page.getByRole("heading", { name: "Time" });
+    this.attendanceHeading = page
+      .locator("h6.oxd-topbar-header-breadcrumb-module")
+      .filter({ hasText: "Time" });
     this.punchInButton = page.getByRole("button", { name: "Punch" });
     this.punchOutButton = page.getByRole("button", { name: "Punch out" });
     this.attendanceToast = page.locator(".oxd-toast");
@@ -28,7 +25,6 @@ export class AttendancePage {
 
   async verifyPageLoaded(): Promise<void> {
     await expect(this.page).toHaveURL(/time/);
-
     await expect(this.attendanceHeading).toBeVisible();
   }
 

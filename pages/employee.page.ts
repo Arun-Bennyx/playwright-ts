@@ -4,45 +4,25 @@ export class EmployeePage {
   readonly page: Page;
 
   readonly employeeHeading: Locator;
-
   readonly addEmployeeButton: Locator;
-
   readonly employeeNameSearchInput: Locator;
-
   readonly employeeIdSearchInput: Locator;
-
   readonly searchButton: Locator;
-
   readonly resetButton: Locator;
-
   readonly employeeRows: Locator;
-
   readonly firstNameInput: Locator;
-
   readonly middleNameInput: Locator;
-
   readonly lastNameInput: Locator;
-
   readonly employeeIdInput: Locator;
-
   readonly saveButton: Locator;
-
   readonly editButton: Locator;
-
   readonly deleteButton: Locator;
-
   readonly confirmDeleteButton: Locator;
-
   readonly personalDetailsTab: Locator;
-
   readonly contactDetailsTab: Locator;
-
   readonly emergencyContactsTab: Locator;
-
   readonly jobTab: Locator;
-
   readonly toastMessage: Locator;
-
   readonly loadingSpinner: Locator;
 
   constructor(page: Page) {

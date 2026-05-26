@@ -4,47 +4,26 @@ export class RecruitmentPage {
   readonly page: Page;
 
   readonly recruitmentHeading: Locator;
-
   readonly candidatesTab: Locator;
-
   readonly vacanciesTab: Locator;
-
   readonly addButton: Locator;
-
   readonly saveButton: Locator;
-
   readonly searchButton: Locator;
-
   readonly resetButton: Locator;
-
   readonly candidateNameSearchInput: Locator;
-
   readonly vacancyDropdown: Locator;
-
   readonly hiringManagerDropdown: Locator;
-
   readonly statusDropdown: Locator;
-
   readonly firstNameInput: Locator;
-
   readonly lastNameInput: Locator;
-
   readonly emailInput: Locator;
-
   readonly contactNumberInput: Locator;
-
   readonly keywordsInput: Locator;
-
   readonly notesInput: Locator;
-
   readonly dateOfApplicationInput: Locator;
-
   readonly candidateRows: Locator;
-
   readonly toastMessage: Locator;
-
   readonly loadingSpinner: Locator;
-
   readonly noRecordsFoundText: Locator;
 
   constructor(page: Page) {
@@ -59,16 +38,16 @@ export class RecruitmentPage {
     this.saveButton = page.getByRole("button", { name: "Save" });
     this.searchButton = page.getByRole("button", { name: "Search" });
     this.resetButton = page.getByRole("button", { name: "Reset" });
-    this.candidateNameSearchInput = page.getByPlaceholder("Type for hints");
+    this.candidateNameSearchInput = page.getByPlaceholder("Type for hints...");
     this.vacancyDropdown = page.locator(".oxd-select-text").first();
     this.hiringManagerDropdown = page.locator(".oxd-select-text").nth(1);
     this.statusDropdown = page.locator(".oxd-select-text").nth(2);
     this.firstNameInput = page.locator('input[name="firstName"]');
     this.lastNameInput = page.locator('input[name="lastName"]');
-    this.emailInput = page.locator('input[placeholder="Type here"]').nth(1);
+    this.emailInput = page.locator('input[placeholder="Type here"]').nth(0);
     this.contactNumberInput = page
       .locator('input[placeholder="Type here"]')
-      .nth(2);
+      .nth(1);
 
     this.keywordsInput = page.locator(
       'input[placeholder="Enter comma seperated words..."]',
@@ -125,32 +104,29 @@ export class RecruitmentPage {
     await this.clickAddButton();
 
     await this.firstNameInput.fill(data.firstName);
-
     await this.lastNameInput.fill(data.lastName);
-
     await this.emailInput.fill(data.email);
-
     if (data.contactNumber) {
       await this.contactNumberInput.fill(data.contactNumber);
     }
-
     if (data.vacancy) {
       await this.selectDropdownOption(this.vacancyDropdown, data.vacancy);
     }
-
     if (data.keywords) {
       await this.keywordsInput.fill(data.keywords);
     }
-
     if (data.notes) {
       await this.notesInput.fill(data.notes);
     }
-
     await this.saveButton.click();
   }
 
   async searchCandidate(candidateName: string): Promise<void> {
-    await this.candidateNameSearchInput.fill(candidateName);
+    await this.candidateNameSearchInput.click();
+    await this.candidateNameSearchInput.type(candidateName, {
+      delay: 100,
+    });
+    await this.page.waitForTimeout(5000);
 
     await this.searchButton.click();
   }
@@ -190,11 +166,12 @@ export class RecruitmentPage {
   }
 
   async verifyNoRecordsFound(): Promise<void> {
+    this.page.waitForTimeout(300);
     await expect(this.noRecordsFoundText).toBeVisible();
   }
 
   async verifySuccessToast(): Promise<void> {
-    await expect(this.toastMessage).toContainText(/success/i);
+    await expect(this.toastMessage).toContainText("Successfully Saved");
   }
 
   async verifySearchButtonEnabled(): Promise<void> {
@@ -211,5 +188,9 @@ export class RecruitmentPage {
 
   async waitForPageStable(): Promise<void> {
     await expect(this.loadingSpinner).not.toBeVisible();
+  }
+
+  async clickCandidates(): Promise<void> {
+    await this.candidatesTab.click();
   }
 }

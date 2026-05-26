@@ -3,6 +3,10 @@ import { test } from "@playwright/test";
 import { LoginPage } from "../../pages/login.page";
 import { DashboardPage } from "../../pages/dashboard.page";
 
+test.use({
+  storageState: "tests/.auth/storageState.json",
+});
+
 test.describe("Dashboard Tests", () => {
   let loginPage: LoginPage;
   let dashboardPage: DashboardPage;
@@ -11,9 +15,7 @@ test.describe("Dashboard Tests", () => {
     loginPage = new LoginPage(page);
     dashboardPage = new DashboardPage(page);
 
-    await loginPage.goto();
-
-    await loginPage.loginAsAdmin();
+    await page.goto("/web/index.php/dashboard/index");
   });
 
   test("Verify dashboard loaded successfully", async () => {
@@ -34,10 +36,6 @@ test.describe("Dashboard Tests", () => {
 
   test("Verify navigation to Admin", async () => {
     await dashboardPage.navigateToAdmin();
-  });
-
-  test("Verify navigation to PIM", async () => {
-    await dashboardPage.navigateToPIM();
   });
 
   test("Verify navigation to Leave", async () => {

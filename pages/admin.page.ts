@@ -4,44 +4,36 @@ export class AdminPage {
   readonly page: Page;
 
   readonly adminHeading: Locator;
-
   readonly addButton: Locator;
-
   readonly saveButton: Locator;
-
   readonly searchButton: Locator;
-
   readonly resetButton: Locator;
-
   readonly usernameInput: Locator;
-
   readonly employeeNameInput: Locator;
-
   readonly passwordInput: Locator;
-
   readonly confirmPasswordInput: Locator;
-
   readonly userRoleDropdown: Locator;
-
   readonly statusDropdown: Locator;
-
   readonly userRows: Locator;
-
   readonly deleteConfirmButton: Locator;
-
   readonly toastMessage: Locator;
-
   readonly loadingSpinner: Locator;
+  readonly userManagementDropdown: Locator;
+  readonly usersOption: Locator;
 
   constructor(page: Page) {
     this.page = page;
 
-    this.adminHeading = page.getByRole("heading", { name: "Admin" });
+    this.adminHeading = page
+      .locator("h6.oxd-topbar-header-breadcrumb-module")
+      .filter({ hasText: "Admin" });
     this.addButton = page.getByRole("button", { name: "Add" });
     this.saveButton = page.getByRole("button", { name: "Save" });
     this.searchButton = page.getByRole("button", { name: "Search" });
     this.resetButton = page.getByRole("button", { name: "Reset" });
-    this.usernameInput = page.locator('input[name="username"]');
+    this.usernameInput = page
+      .locator("input.oxd-input.oxd-input--active")
+      .nth(1);
     this.employeeNameInput = page.getByPlaceholder(/type for hints/i);
     this.passwordInput = page.locator('input[type="password"]').first();
     this.confirmPasswordInput = page.locator('input[type="password"]').nth(1);
@@ -53,8 +45,13 @@ export class AdminPage {
     });
 
     this.toastMessage = page.locator(".oxd-toast");
-
     this.loadingSpinner = page.locator(".oxd-loading-spinner");
+    this.userManagementDropdown = this.page
+      .locator(".oxd-topbar-body-nav-tab")
+      .filter({ hasText: "User Management" });
+    this.usersOption = this.page.getByRole("menuitem", {
+      name: "Users",
+    });
   }
 
   async verifyPageLoaded(): Promise<void> {
@@ -111,7 +108,6 @@ export class AdminPage {
 
   async searchUser(username: string): Promise<void> {
     await this.usernameInput.fill(username);
-
     await this.searchButton.click();
   }
 
@@ -163,5 +159,10 @@ export class AdminPage {
 
   async verifyAddButtonEnabled(): Promise<void> {
     await expect(this.addButton).toBeEnabled();
+  }
+
+  async openUsersPage() {
+    await this.userManagementDropdown.click();
+    await this.usersOption.click();
   }
 }

@@ -4,23 +4,14 @@ export class PerformancePage {
   readonly page: Page;
 
   readonly performanceHeading: Locator;
-
   readonly configureMenu: Locator;
-
   readonly manageReviewsMenu: Locator;
-
   readonly myTrackersMenu: Locator;
-
   readonly employeeReviewsRows: Locator;
-
   readonly searchButton: Locator;
-
   readonly resetButton: Locator;
-
   readonly employeeNameInput: Locator;
-
   readonly toastMessage: Locator;
-
   readonly loadingSpinner: Locator;
 
   constructor(page: Page) {
@@ -35,7 +26,7 @@ export class PerformancePage {
     this.employeeReviewsRows = page.locator(".oxd-table-body .oxd-table-row");
     this.searchButton = page.getByRole("button", { name: "Search" });
     this.resetButton = page.getByRole("button", { name: "Reset" });
-    this.employeeNameInput = page.getByPlaceholder("Type for hints");
+    this.employeeNameInput = page.getByPlaceholder("Type for hints...");
     this.toastMessage = page.locator(".oxd-toast");
     this.loadingSpinner = page.locator(".oxd-loading-spinner");
   }

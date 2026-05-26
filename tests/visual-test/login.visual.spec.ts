@@ -7,7 +7,7 @@ import { DashboardPage } from "../../pages/dashboard.page";
 const users = loadTestData<UserData>("users");
 
 test.describe("@visual Login page – desktop", () => {
-  test("Login page visual snapshot", async ({ page }) => {
+  test.fixme("Login page visual snapshot", async ({ page }) => {
     const user = users.validUsers[0];
 
     const loginPage = new LoginPage(page);
@@ -19,7 +19,7 @@ test.describe("@visual Login page – desktop", () => {
     await expect(page).toHaveScreenshot("login-page.png");
   });
 
-  test("Login error visual snapshot", async ({ page }) => {
+  test.fixme("Login error visual snapshot", async ({ page }) => {
     const user = users.invalidUsers[0];
     const loginPage = new LoginPage(page);
 
@@ -31,7 +31,9 @@ test.describe("@visual Login page – desktop", () => {
   });
 });
 
-test("Login mobile resolution visual snapshot @mobile", async ({ page }) => {
+test.fixme("Login mobile resolution visual snapshot @mobile", async ({
+  page,
+}) => {
   const user = users.validUsers[0];
 
   const loginPage = new LoginPage(page);

@@ -25,6 +25,10 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: "retain-on-failure",
     viewport: { width: 1280, height: 800 },
+    locale: "en-US",
+    extraHTTPHeaders: {
+      "Accept-Language": "en-US,en;q=0.9",
+    },
   },
 
   expect: {

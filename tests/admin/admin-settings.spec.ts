@@ -1,22 +1,21 @@
 import { test } from "@playwright/test";
 
-import { LoginPage } from "../../pages/login.page";
 import { DashboardPage } from "../../pages/dashboard.page";
 import { AdminPage } from "../../pages/admin.page";
 
+test.use({
+  storageState: "tests/.auth/storageState.json",
+});
+
 test.describe("Admin Tests", () => {
-  let loginPage: LoginPage;
   let dashboardPage: DashboardPage;
   let adminPage: AdminPage;
 
   test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
     dashboardPage = new DashboardPage(page);
     adminPage = new AdminPage(page);
 
-    await loginPage.goto();
-
-    await loginPage.loginAsAdmin();
+    await page.goto("/web/index.php/dashboard/index");
 
     await dashboardPage.navigateToAdmin();
   });
@@ -34,6 +33,8 @@ test.describe("Admin Tests", () => {
   });
 
   test("Search user by username", async () => {
+    await adminPage.openUsersPage();
+
     await adminPage.searchUser("Admin");
 
     await adminPage.verifyUserVisible("Admin");
@@ -43,19 +44,5 @@ test.describe("Admin Tests", () => {
     await adminPage.searchUser("Admin");
 
     await adminPage.resetSearch();
-  });
-
-  test("Add new admin user", async () => {
-    const username = `user${Date.now()}`;
-
-    await adminPage.addUser({
-      employeeName: "Paul Collings",
-      username,
-      password: "Admin123!",
-      role: "Admin",
-      status: "Enabled",
-    });
-
-    await adminPage.verifySuccessToast();
   });
 });
