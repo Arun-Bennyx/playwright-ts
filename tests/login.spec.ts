@@ -14,20 +14,28 @@ test.describe("Login Tests", () => {
     await loginPage.goto();
   });
 
-  test("Verify login page UI", { tag: ["@smoke"] }, async () => {
-    await loginPage.verifyLoginPageLoaded();
-    await loginPage.verifyLoginFormVisible();
-    await loginPage.verifyForgotPasswordVisible();
-    await loginPage.verifyCredentialsSectionVisible();
-    await loginPage.verifyPasswordMasked();
-    await loginPage.verifyLoginButtonEnabled();
-  });
+  test(
+    "Verify login page UI",
+    { tag: ["@smoke", "@cross-browser"] },
+    async () => {
+      await loginPage.verifyLoginPageLoaded();
+      await loginPage.verifyLoginFormVisible();
+      await loginPage.verifyForgotPasswordVisible();
+      await loginPage.verifyCredentialsSectionVisible();
+      await loginPage.verifyPasswordMasked();
+      await loginPage.verifyLoginButtonEnabled();
+    },
+  );
 
-  test("Login with valid credentials", async () => {
-    await loginPage.loginAsAdmin();
+  test(
+    "Login with valid credentials",
+    { tag: ["@smoke", "@cross-browser"] },
+    async () => {
+      await loginPage.loginAsAdmin();
 
-    await dashboardPage.verifyDashboardLoaded();
-  });
+      await dashboardPage.verifyDashboardLoaded();
+    },
+  );
 
   test("Login with invalid credentials", async () => {
     await loginPage.login("wrongUser", "wrongPassword");
